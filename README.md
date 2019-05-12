@@ -14,16 +14,13 @@
 
 
 ### 실행 및 환경
+```
 nodejs v11.14.0 
-
 npm v6.9.0 
-
 database sqlite3 
-
 express4 
-
 macos 10.14 Mojave
- 
+```
 ```
 npm install
 npm start
