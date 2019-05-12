@@ -1,6 +1,6 @@
 ### API Document
 
-| Url | Method | Params |Request| Response |
+| Url | Method | Params |RequestBody| Response |
 |--------|--------|--------|--------|--------|
 |/users|GET|||id, email, type|
 |/users|POST||email, password, type(0:user,1:driver)|회원가입 완료|
