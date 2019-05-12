@@ -55,11 +55,11 @@ router.get("/users", function (req, res, next) {
     try {
         const result = DB().query("select id, email, type from user");
         result.forEach(function (item) {
-            item.type=userTypeConverter(item.type)
+            item.type = userTypeConverter(item.type);
         })
-        res.json(result)
+        res.json(result);
     } catch (e) {
-        res.status(503).json({error: e.message})
+        res.status(503).json({error: e.message});
     }
 
 }).post("/users", function (req, res, next) {
@@ -67,36 +67,41 @@ router.get("/users", function (req, res, next) {
         const result = DB().insert("user", req.body);
         res.json("회원가입 완료")
     } catch (e) {
-        res.status(409).json({error: e.message})
+        res.status(409).json({error: e.message});
     }
 }).post("/login", function (req, res, next) {
     try {
         const result = DB().query("select id, email, type from user where email=? and password=?", [req.body.email, req.body.password]);
         if (result.length) {
-            res.json("API TOKEN : token")
+            res.json("API TOKEN : token");
         } else {
-            res.status(401).json({error: "로그인 실패"})
+            res.status(401).json({error: "로그인 실패"});
         }
 
     } catch (e) {
-        res.status(409).json({error: e.message})
+        res.status(409).json({error: e.message});
     }
 }).post("/users/:id/allocations", function (req, res, next) {
     try {
-        const data = {
-            "customer": req.params.id,
-            "dest_address": req.body.address,
-            "create_date": moment().format("YYYY-MM-DD HH:mm:ss")
-        }
-        const checkUser = DB().queryFirstRow("select type from user where id=?", req.params.id).type;
-        if (checkUser === 1) {
-            res.json("driver user is not allowed ")
+        const destAddress = req.body.address;
+        if (destAddress.length > 200) {
+            res.json('주소는 100자이내로 입력해 주세요.');
         } else {
-            const result = DB().insert("allocation", data)
-            res.status(200).json(result)
+            const data = {
+                "customer": req.params.id,
+                "dest_address": destAddress,
+                "request_time": moment().format("YYYY-MM-DD HH:mm:ss")
+            };
+            const checkUser = DB().queryFirstRow("select type from user where id=?", req.params.id).type;
+            if (checkUser === 1) {
+                res.json("driver user is not allowed ");
+            } else {
+                const result = DB().insert("allocation", data);
+                res.status(200).json(result);
+            }
         }
     } catch (e) {
-        res.status(409).json({error: e.message})
+        res.status(409).json({error: e.message});
     }
 }).put("/drivers/:id/allocations/:allocationId", function (req, res, next) {
     try {
@@ -104,21 +109,21 @@ router.get("/users", function (req, res, next) {
         const data = {
             "driver": id,
             "allocation_time": moment().format("YYYY-MM-DD HH:mm:ss")
-        }
+        };
         const checkDrvier = DB().queryFirstRow("select type from user where id=?", id).type;
         if (checkDrvier === 0) {
-            res.json("드라이버 사용자가 아닙니다.")
+            res.json("드라이버 사용자가 아닙니다.");
         } else {
             const allocationStatus = DB().queryFirstRow("select status from allocation where id=?", allocationId).status;
             if (allocationStatus !== 0) {
-                res.json("이미 배차가 완료된 건입니다.")
+                res.json("이미 배차가 완료된 건입니다.");
             } else {
                 const result = DB().update("allocation", data, ["id=?", allocationId]);
-                res.json("신청한 배차 요청건에 배차되었습니다.")
+                res.json("신청한 배차 요청건에 배차되었습니다.");
             }
         }
     } catch (e) {
-        res.status(409).json({error: e.message})
+        res.status(409).json({error: e.message});
     }
 });
 
@@ -129,17 +134,17 @@ router.get("/allocations", function (req, res, next) {
         let result = null;
         if (checkUndefined(req.query.status)) {
             query = query + " where status = ?" + order;
-            result = DB().query(query, req.query.status)
+            result = DB().query(query, req.query.status);
         } else {
-            result = DB().query(query + order)
+            result = DB().query(query + order);
             result.forEach(function (item) {
                 item.status = statusCodeConverter(item.status)
             })
         }
-        res.json(result)
+        res.json(result);
 
     } catch (e) {
-        res.status(409).json({error: e.message})
+        res.status(409).json({error: e.message});
     }
 });
 
